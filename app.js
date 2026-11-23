@@ -54,6 +54,24 @@ function search(list, keyword) {
     const q = keyword.trim().toLowerCase();
     return list.filter((m) => m.title.toLowerCase().includes(q));
 }
-
 renderCards(movies);
+function getView() {
+    let list = search(movies, document.querySelector("#q").value);
+    const type = document.querySelector('input[name="type"]:checked').value;
+    if (type !== "all") {
+        list = list.filter((m) => m.type === type);
+    }
+    const key = document.querySelector("#sort").value;
+    return sortBy(list, key, key !== "title");
+}
+
+function refresh() {
+    renderCards(getView());
+}
+
+document.querySelector("#q").addEventListener("input", refresh);
+document.querySelector("#sort").addEventListener("change", refresh);
+document.querySelector("#typeFilter").addEventListener("change", refresh);
+
+refresh();
 
