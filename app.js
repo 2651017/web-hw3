@@ -1,9 +1,11 @@
+// path, size ⇒ TMDB 이미지 URL
 const posterUrl = (path, size) => {
     return "https://image.tmdb.org/t/p/" + size + path;
 }
 
 let liked = JSON.parse(localStorage.getItem("liked") || "[]");
 
+// 영화 목록 ⇒ 카드 목록을 그리고 개수를 갱신
 function renderCards(list) {
   const board = document.querySelector(".board");
   board.innerHTML = "";
@@ -48,7 +50,7 @@ function renderCards(list) {
   }
 }
 
-// sortBy : 배열, 키 이름, 참이면 내림차순 ⇒ 새 배열 
+// 목록, 키, 내림차순 여부 ⇒ 정렬된 새 목록
 function sortBy(list, key, desc) {
     const sign = desc ? -1 : 1;
     return [...list].sort((a, b) => {
@@ -59,12 +61,13 @@ function sortBy(list, key, desc) {
     });
 }
 
-// search : 배열, 문자열 ⇒ 새 배열
+// 목록, 검색어 ⇒ 제목이 검색어를 포함하는 새 목록
 function search(list, keyword) {
     const q = keyword.trim().toLowerCase();
     return list.filter((m) => m.title.toLowerCase().includes(q));
 }
-renderCards(movies);
+
+// 현재 입력값 ⇒ 검색·보기·정렬이 적용된 영화 목록
 function getView() {
     let list = search(movies, document.querySelector("#q").value);
     const type = document.querySelector('input[name="type"]:checked').value;
@@ -75,16 +78,17 @@ function getView() {
     return sortBy(list, key, key !== "title");
 }
 
+// 없음 ⇒ 현재 조건으로 카드를 다시 그림
 function refresh() {
     renderCards(getView());
 }
 
-let liked = JSON.parse(localStorage.getItem("liked") || "[]");
-
+// 없음 ⇒ 찜 목록을 localStorage에 저장
 function saveLiked() {
     localStorage.setItem("liked", JSON.stringify(liked));
 }
 
+// 영화 제목 ⇒ 해당 영화의 상세 대화상자를 엶
 function openDetail(title) {
     const movie = movies.find((m) => m.title === title);
     if (!movie) return;
@@ -98,9 +102,13 @@ function openDetail(title) {
     document.getElementById("detail").showModal();
 }
 
+// 검색 입력 ⇒ 현재 보기 갱신
 document.querySelector("#q").addEventListener("input", refresh);
+// 정렬 선택 ⇒ 현재 보기 갱신
 document.querySelector("#sort").addEventListener("change", refresh);
+// 보기 선택 ⇒ 현재 보기 갱신
 document.querySelector("#typeFilter").addEventListener("change", refresh);
+// 보드 클릭 ⇒ 찜 토글 또는 상세 대화상자 표시
 document.querySelector(".board").addEventListener("click", (e) => {
     const card = e.target.closest(".card");
     if (!card) return;
@@ -116,9 +124,11 @@ document.querySelector(".board").addEventListener("click", (e) => {
     openDetail(title);
 });
 
+// 닫기 버튼 클릭 ⇒ 상세 대화상자를 닫음
 document.getElementById("closeDetail").addEventListener("click", () => {
     document.getElementById("detail").close();
 });
 
+// 초기 로드 ⇒ 기본 조건으로 카드 표시
 refresh();
 
