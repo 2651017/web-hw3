@@ -2,6 +2,8 @@ const posterUrl = (path, size) => {
     return "https://image.tmdb.org/t/p/" + size + path;
 }
 
+let liked = JSON.parse(localStorage.getItem("liked") || "[]");
+
 function renderCards(list) {
   const board = document.querySelector(".board");
   board.innerHTML = "";
@@ -39,6 +41,11 @@ function renderCards(list) {
   }
   document.getElementById("count").textContent = list.length + "편";
   document.getElementById("likeCount").textContent = liked.length;
+  if (list.length === 0) {
+    board.classList.add("is-empty");
+  } else {
+    board.classList.remove("is-empty");
+  }
 }
 
 // sortBy : 배열, 키 이름, 참이면 내림차순 ⇒ 새 배열 
@@ -78,6 +85,19 @@ function saveLiked() {
     localStorage.setItem("liked", JSON.stringify(liked));
 }
 
+function openDetail(title) {
+    const movie = movies.find((m) => m.title === title);
+    if (!movie) return;
+
+    document.getElementById("detailBody").innerHTML = `
+      <img class="poster" src="${posterUrl(movie.poster, "w500")}" alt="${movie.title} 포스터">
+      <h2>${movie.title}</h2>
+      <p>개봉일: ${movie.date}</p>
+      <p>평점: ${movie.rating}</p>
+      <p>${movie.overview}</p>`;
+    document.getElementById("detail").showModal();
+}
+
 document.querySelector("#q").addEventListener("input", refresh);
 document.querySelector("#sort").addEventListener("change", refresh);
 document.querySelector("#typeFilter").addEventListener("change", refresh);
@@ -93,6 +113,11 @@ document.querySelector(".board").addEventListener("click", (e) => {
         refresh();
         return;
     }
+    openDetail(title);
+});
+
+document.getElementById("closeDetail").addEventListener("click", () => {
+    document.getElementById("detail").close();
 });
 
 refresh();
