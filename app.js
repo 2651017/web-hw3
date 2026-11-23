@@ -24,6 +24,7 @@ function renderCards(list) {
     } else {
       poster = `<img class="poster" src="${posterUrl(m.poster, "w342")}" alt="${m.title} 포스터">`;
     }
+    const likeClass = liked.includes(m.title) ? "like liked" : "like";
 
     card.innerHTML = `
       ${poster}
@@ -32,10 +33,12 @@ function renderCards(list) {
       <div class="info">
         <h3>${m.title}</h3>
         <p class="year">${m.year}</p>
+        <button class="${likeClass}" type="button">♥</button>
       </div>`;
     board.appendChild(card);
   }
   document.getElementById("count").textContent = list.length + "편";
+  document.getElementById("likeCount").textContent = liked.length;
 }
 
 // sortBy : 배열, 키 이름, 참이면 내림차순 ⇒ 새 배열 
@@ -69,9 +72,28 @@ function refresh() {
     renderCards(getView());
 }
 
+let liked = JSON.parse(localStorage.getItem("liked") || "[]");
+
+function saveLiked() {
+    localStorage.setItem("liked", JSON.stringify(liked));
+}
+
 document.querySelector("#q").addEventListener("input", refresh);
 document.querySelector("#sort").addEventListener("change", refresh);
 document.querySelector("#typeFilter").addEventListener("change", refresh);
+document.querySelector(".board").addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    const title = card.getAttribute("data-title");
+    if (e.target.closest(".like")) {
+        const i = liked.indexOf(title);
+        if (i === -1) liked.push(title);
+        else liked.splice(i, 1);
+        saveLiked();
+        refresh();
+        return;
+    }
+});
 
 refresh();
 
